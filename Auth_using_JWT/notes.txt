@@ -1,0 +1,23 @@
+Authentication System has 4 parts : 
+
+1) Validation :
+Jo data diya hai uska format thik hai ya nahi 
+data ke format ko check karna 
+data ke format ko check karna -------> Validation
+
+2) Verification :
+is the given data correct to check it , jo data 
+diya hia kya yeh sahi hai isko check karo 
+Kya jo data diya hai voh sahi hai ------> Varification
+
+3) Authentication :
+User kya ek authentic user hai yaa fir unauthorized 
+student hai , just like an ID card , Kya yeh ek varified user hai 
+request konsa user bhej raha hai : Authentication
+
+
+4) Authorization : 
+Does the user has enough permission to do a particular task 
+ek user kya kya krr sakta hai 
+EK USER KE PAAS KYA KYA RIGHTS HAI TO PERFORM A PARTICULAR ACTION 
+

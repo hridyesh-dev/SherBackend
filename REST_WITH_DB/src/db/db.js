@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 export function connectToDB(){
 
     //server ko connect karo from db
-    mongoose.connect("mongodb+srv://hridyeshdev03_db_user:ramram14112607@cluster0.byz2pmd.mongodb.net/cohort")
+    mongoose.connect("")
     .then(()=>{
         console.log(" Connected to DB ");
     }).catch(()=>{

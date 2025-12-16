@@ -1,0 +1,132 @@
+Jo music humm upload krr rahe hai 
+uska mood kya hoga - happy , sad , neutral
+
+usko store karege - cloud mai , S3 mai because our prod server dosent have 
+any Memory in it 
+
+it has only OS , number of CPU and its RAM 
+
+we dont have ssd or secondary memory 
+
+production server dosent have secondary memory so for that 
+we can use cloud service providers 
+
+WHAT IS A CLOUD STORAGE SERVICE : 
+it allows users to store data on remote servers over the internet 
+rather than on their own physical devices 
+
+and will give a url through which we can access it 
+
+imagekit : A CLOUD STORAGE PROVIDER , great for things under 10mb 
+bunny : great for video 
+
+we cant store songs in mongo db as it will cost more 
+but for imagekit it is comparitively cheaper 
+its not practicle or cheaper  
+
+MongoDB alag hai its a DB organised for fast read write speeds 
+not to store large amout of Data 
+
+where as cloud storage providers are used to store large files , reading them 
+
+imagekit pe jaake songs ko store karna hoga :
+audio files ko image kit pe store karna hai 
+voh url dega that we will store in db and using that we will be able to access the songs 
+
+STORING SONGS
+/*
+    title 
+    artist 
+    audioFile
+    
+    agar sirf title and artist hote toh hum raw format mai bhej dete 
+    
+    but since we also want to send and audio_file uss mai we cant share files 
+    we need to send it in the form of form-data 
+
+    raw format is optimised for raw object data using less resources 
+    but in passing files we need to use form data which would need much more resources on the server side
+    we can send any type of data 
+
+    in form data we can share multiple data like texts and files 
+    where as in binary we can share only files 
+
+    in case of raw data we will use express.json()
+    but in case of form data we will use multer 
+*/
+
+MULTER FILE UPLOAD 
+jo hamara multer hai yeh jo form data form mai data aaye ga humm usse read krr paaye 
+yeh jo file aa rahi hai iska memory storage mai store krr lena 
+memory storage: server ki ram (temporary server ki ram mai store ho jaaye ga )
+
+const upload = multer({storage:multer.memoryStorage()});
+
+
+songs ko upload karna in DB : it is similar to app.post()
+multer is applied as a middleware and pass the name of the key where you will send the data 
+
+IN case of muptiple files we will write Array 
+
+// files -> postman ->imagekit->url in return (we can use this to acess it )
+//songs ko upload karna in DB : it is similar to app.post()
+//multer is applied as a middleware and pass the name of the key where you will send the data 
+
+router.post("/songs", upload.single("audio"), async (req, res) => {
+    try{
+        // to see our text data 
+        console.log("Text data:", req.body);
+        
+        // to see our file data 
+        console.log("File data:", req.file);
+
+        //upload the file to image kit 
+        const fileData = await uploadFile(req.file);
+
+        //image kit jo result dega voh idhar hoga 
+        console.log("ImageKit response:", fileData);
+
+        res.status(201).json({
+            message: "Song uploaded successfully",
+            url: fileData.url,
+        });
+
+    }catch(error){
+        console.error("Upload failed:", error);
+        res.status(500).json({ message: "Upload failed", error });
+    }
+});
+
+Integrating FRONTEND WITH BACKEND
+how its done ? 
+
+user jab bhi button pe click karega 
+
+Face Api : will detect user mood , user ka mood detect hone ke baad 
+then our BACKEND api will be called ki user ka mood happy hai happy wala song laake do 
+user ka mood sad hai sad waale songs laake do, user ka mood neutral hai voh waale songs laake do 
+
+// HOW WE ARE GONNA DO THAT 
+how we will integrate it : 
+With the help of axios we will be sending request on our backend 
+
+we used state in which we sent songs to mood songs so that 
+waha se humm songs show krr paaye 
+
+and we sent setSongs to facial expression cuz that will check aur face 
+expression and then will send data to backend will fetch the songs and then 
+inject their value in songs state variable 
+
+HOW WE ARE GOING TO DO API REQUEST BETWEEN OUR FRONTEND AND SERVER 
+1) Axios : to send request to backend from frontend 
+   and jo request aaye ga usse set krr do 
+
+WE NEED TO SET UP CORS POLICY : 
+jis api pe hum request krr rahe the it has been blocked 
+frontend se jo request backend pe jaa rahi hai usse block krr diya hai CORS Policy ki wajah se 
+
+CORS POLICY KA MATLAB : humme kisi website ke resources use karne se prevent karta hai 
+agar dono ke origin alag alag hai then they cant communicate or share resources
+
+How to fix it ?
+backend pe ek middleware rakho cors naam ka 

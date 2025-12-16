@@ -1,0 +1,7 @@
+creating crud using database 
+
+POST /notes=>title,content
+GET /notes=>get all notes
+PATCH /notes/:id =>update a note
+DELETE /notes/:id =>delete a note
+ 

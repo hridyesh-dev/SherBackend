@@ -1,0 +1,181 @@
+
+/* =========================
+   Facial Expression — Compact Flexbox
+   ========================= */
+
+/* Theme variables */
+:root {
+  --bg-gradient: linear-gradient(135deg, #191a1e 0%, #2b2d35 100%);
+  --panel-bg: rgba(255, 255, 255, 0.12);
+  --panel-border: rgba(255, 255, 255, 0.18);
+  --accent: #ff4b2b;
+  --accent-2: #7c5cff;
+  --text-primary: #ffffff;
+  --text-secondary: #e6e6e6;
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* Page base */
+body {
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ===== Layout (Flexbox) — compact, centered ===== */
+.mood-element {
+  width: 100%;
+  min-height: 60vh;            /* reduce vertical footprint */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5rem;                 /* compact spacing between video and info */
+  padding: 1.5rem 1rem;         /* reduced outer padding */
+  max-width: 1040px;            /* tighter container width */
+  margin: 0 auto;
+}
+
+/* Stack on smaller screens */
+@media (max-width: 1080px) {
+  .mood-element {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem 1rem;
+    max-width: 720px;
+  }
+}
+
+/* ===== Video Panel ===== */
+.video-wrapper {
+  position: relative;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  padding: 10px;               /* compact inner spacing */
+  overflow: visible;
+
+  width: 100%;
+  max-width: 700px;            /* ensures it won’t create large gaps */
+  flex: 1 1 560px;             /* preferred baseline width */
+}
+
+/* Soft glow */
+.video-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(900px 600px at 20% 30%, rgba(124, 92, 255, 0.30), transparent 70%),
+    radial-gradient(900px 600px at 80% 70%, rgba(255, 75, 43, 0.25), transparent 70%);
+  filter: blur(38px);
+  animation: floatGlow 12s ease-in-out infinite alternate;
+}
+
+@keyframes floatGlow {
+  from { transform: translate3d(-6px, -6px, 0) scale(1.02); }
+  to   { transform: translate3d(6px, 6px, 0)  scale(1.05); }
+}
+
+/* Video — solid border on all sides */
+.user-video-feed {
+  position: relative;
+  z-index: 1;
+
+  width: clamp(500px, 52vw, 680px); /* slightly smaller to help reduce layout gaps */
+  aspect-ratio: 16 / 9;
+
+  border-radius: 12px;
+  background: #ffffff;
+  object-fit: cover;
+
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-md);
+  display: block;
+}
+
+/* ===== Info Panel ===== */
+.info-div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;                 /* compact spacing */
+  flex: 0 1 360px;             /* smaller column to reduce overall width */
+  max-width: 720px;
+}
+
+/* Headline — single line on desktop */
+.headline {
+  font-size: clamp(2.9rem, 3vw, 2.5rem); /* fit one line comfortably */
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Allow wrapping on mobile */
+@media (max-width: 1080px) {
+  .headline {
+    white-space: normal;
+    text-overflow: clip;
+  }
+}
+
+.headline::after {
+  content: "";
+  display: block;
+  width: 174px;
+  height: 7px;
+  margin-top: 6px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+/* Paragraph — visible with tight gap from headline */
+.subtext {
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.6;
+  margin: 0.35rem 0 0.6rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Button */
+.info-div button {
+  padding: 0.8rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(135deg, var(--accent) 0%, #ff6a4d 100%);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  box-shadow: 0 8px 20px rgba(255, 75, 43, 0.35);
+}
+
+.info-div button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 14px 28px rgba(255, 75, 43, 0.4);
+}
+
+.info-div button:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+/* ===== Space below FacialExpression (controls gap to next component) ===== */
+.mood-element {
+  margin-bottom: 1.25rem;      /* ✅ small, consistent gap to MoodSongs */
+}

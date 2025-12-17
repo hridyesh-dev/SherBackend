@@ -59,12 +59,20 @@ router.post("/login",async (req,res)=>{
         })
     }
 
+    // after user is logged in give it a token 
+    const token=jwt.sign({id:isUserExists._id},process.env.JWT_SECRET)
+    
+    //will expire after 7 days : after login done set it in cookie
+    //server stores cookie in frontend 
+    res.cookie("token",token,{
+        expires:new Date(Date.now()+1000*60*60*24*7)
+    })
+
     return res.status(200).json({
         message:"User LoggedIn  Sucessfully"
     })
 
 })
-// token after login : 
 
 //GET /auth/user : to fetch userdata 
 router.get('/user',async(req,res)=>{
@@ -103,8 +111,13 @@ router.get('/user',async(req,res)=>{
         })
     }
 
-
 })
 
 // GET /auth/logout
+res.get('/logout',(req,res)=>{
+    res.clearCookie("token")
+    res.status(200).json({
+        message:"User Logged Out Sucessfully"
+    })
+})
 

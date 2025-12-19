@@ -79,7 +79,7 @@ router.get('/user',async(req,res)=>{
     
     // tiny piece of data sent with every http request 
     //cookies mai jo data send karoge voh hrr ek http request ke saath server pe jaaye ga 
-    const {token} = req.cookies
+    const token = req.cookies.token
     
     //agar account nahi hoga toh token bhi nahi hoga 
     if(!token){

@@ -23,9 +23,8 @@ export async function generateCaption(base64ImageFile){
                 data: base64ImageFile,
             },
         },
-        { text: "caption this image ." },
+        { text: "caption this image. "},
     ];
-
     //giving image as input and returning the caption 
     const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",

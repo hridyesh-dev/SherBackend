@@ -1,6 +1,8 @@
+import 'dotenv/config'
 import { app } from "./src/app.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { generateResponse } from './src/service/ai.service.js';
 
 /*
     our server communicates through https 
@@ -21,9 +23,10 @@ io.on("connection", (socket ) => {
     })
 
     //event ko register kiya hai : jab bhi message event chalega tabh yeh callback chalega 
-    socket.on("message",(data)=>{
-        console.log(data);
-        console.log("message received");
+    socket.on("ai-message", async (data)=>{
+        console.log("received ai message : ",data.prompt);
+        const response=await generateResponse(data.prompt);
+        console.log("AI Response ",response);
     })
 
 }); 

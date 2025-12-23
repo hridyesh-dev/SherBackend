@@ -23,13 +23,17 @@ io.on("connection", (socket ) => {
     })
 
     //event ko register kiya hai : jab bhi message event chalega tabh yeh callback chalega 
+    // on : Listener , emit : emit fire karna  
     socket.on("ai-message", async (data)=>{
         console.log("received ai message : ",data.prompt);
-        const response=await generateResponse(data.prompt);
+        const response = await generateResponse(data.prompt);
         console.log("AI Response ",response);
+        //server ne apni side se event fire kiya 
+        socket.emit("ai-message-response",{response})
     })
 
 }); 
+
 
 httpServer.listen(3001,()=>{
     console.log("Server started on port 3001");

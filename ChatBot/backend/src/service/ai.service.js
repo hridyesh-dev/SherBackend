@@ -2,11 +2,11 @@ import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({});
 
-export async function generateResponse(prompt){
+export async function generateResponse(chatHistory){
     
     const response=await ai.models.generateContent({
         model:"gemini-2.0-flash",
-        contents:prompt
+        contents:chatHistory
     })
     return response.text
 }

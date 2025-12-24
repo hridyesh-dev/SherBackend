@@ -33,6 +33,7 @@ export  function initSocketServer(httpServer){
     })
 
     io.on("connection",(socket)=>{
+        console.log("user connected ",socket.user);
         console.log("New Socket Connection ",socket.id);
     })
 

@@ -33,7 +33,9 @@ export  function initSocketServer(httpServer){
     })
 
     io.on("connection",(socket)=>{
+        //konsa user connect hua hai 
         console.log("user connected ",socket.user);
+        //socket id built in feature hai 
         console.log("New Socket Connection ",socket.id);
     })
 

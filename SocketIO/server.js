@@ -10,6 +10,18 @@ import { generateResponse } from "./src/services/ai.service.js";
 const httpServer = createServer(app);
 const io = new Server(httpServer, { /* options */ });
 
+//This will save our short term memory 
+const chatHistory=[
+    // {
+    //     role:"user",
+    //     parts:[{text:"who was the PM OF India in 2019? "}]
+    // },
+    // {
+    //     role:"model",
+    //     parts:[{text:"PM of India in 2019 was Narendra Modi  "}]
+    // },
+]
+
 //low latency , event based io: server , socket:user , persistant , bidirectional 
 io.on("connection", (socket) => {
     //JAB naya connection banega tabh yeh chalega
@@ -18,24 +30,43 @@ io.on("connection", (socket) => {
     // predefined events : connection and disconnect 
     // and custom events : Jo humm khud banate hai 
 
-
     //jab disconnect hoga toh halega 
     socket.on("disconnect",()=>{
         console.log(" User Disconnected from Server");
     })
 
     //custom event also sending data in it  text , json , binary:JSON 
-    // CLIENT(postman) -------------> Server
+    // CLIENT(postman) -------------> Server( yeh listen karega )
     socket.on("ai-message",async (data)=>{
-        console.log("Message received from user : ",data.prompt);
-        const response= await generateResponse(data.prompt);
+
+
+        //////////////////////////////////////////////////////
+        //                  SHORT TERM MEMORY               //
+        //////////////////////////////////////////////////////
+
+        //JO question user se aaya usse save karo 
+        chatHistory.push({
+            role:"user",
+            parts:[{ text : data }]
+        })
+
+        console.log("Message received from user : ",data);
+
+        const response= await generateResponse(chatHistory);
         console.log("AI Response: ",response);
+        
+        //Jo response AI SE aaya usse save karo 
+        chatHistory.push({
+            role:"user",
+            parts:[{ text : response }]
+        })
 
         //jo answer aaya AI Se usse emit krr diya hai : wapas user ko 
+        //server emit krr raha hai 
         socket.emit("ai-message-response",{response})
-
+    
         //also register karna hai lister postman pe (client)
-
+    
     })
 
 

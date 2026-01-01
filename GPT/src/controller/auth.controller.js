@@ -26,7 +26,7 @@ export async function registerUser(req,res){
         password : hashedPassword
     })
 
-    //user created now create a token using which we can verify it 
+    //user created , now create a token using which we can verify it 
     const token=jwt.sign({id:user._id},process.env.JWT_SECRET)
     res.cookie("token",token)
 
@@ -38,14 +38,13 @@ export async function registerUser(req,res){
             fullName:user.fullName
         }
     })
-
-
 }
 
 export async function loginUser(req,res){
     const {email,password}=req.body
     
     const user=await userModel.findOne({
+        //email ke bases pe find karo 
         email
     })
 
@@ -55,7 +54,8 @@ export async function loginUser(req,res){
         })
     }
 
-    const isPasswordValid = await  bcrypt.compare(password,user.password)
+    //user mill gaya password ko check karo 
+    const isPasswordValid = bcrypt.compare(password,user.password)
     
     if(!isPasswordValid){
         return res.status(400).json({
@@ -63,10 +63,11 @@ export async function loginUser(req,res){
         })
     }
 
+    //creating a token using which we can verify a loggedin user 
     const token=jwt.sign({id:user._id},process.env.JWT_SECRET)
     res.cookie("token",token)
 
-        return res.status(201).json({
+    return res.status(201).json({
         message:"user LoggedIn sucessfully",
         user:{
             id:user._id,

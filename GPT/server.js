@@ -5,7 +5,7 @@ import { connectDB } from "./src/db/db.js";
 
 import { initSocketServer } from "./src/sockets/socket.server.js";
 
-
+//app ka server create karo 
 const httpServer = http.createServer(app);
 
 initSocketServer(httpServer);

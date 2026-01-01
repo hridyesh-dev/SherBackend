@@ -5,7 +5,9 @@ export async function createChat(req, res) {
     const user = req.user;
 
     const chat = await chatModel.create({
+        //konse user ki chat hai  
         user: user._id,
+        //chat title kya hai 
         title
     });
 
@@ -15,6 +17,7 @@ export async function createChat(req, res) {
             _id: chat._id,
             title: chat.title,
             lastActivity: chat.lastActivity,
+            //konse user ne chat create ki hai 
             user: chat.user
         }
     });

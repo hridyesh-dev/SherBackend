@@ -6,6 +6,7 @@ import { generateResponse } from "../services/ai.service.js";
 import { messageModel } from "../models/message.model.js";
 
 export  function initSocketServer(httpServer){
+    //io = server 
     const io = new Server(httpServer,{})
 
     //socket io ka middleware  
@@ -54,9 +55,10 @@ export  function initSocketServer(httpServer){
                 role:"user"
             })
 
-            const chatHistory = await messageModel.find({
-                chat:messagePayload.chatHistory
-            })
+            //kitne last messages yaad rakhne waale hai : IN SHORT TERM MEMORY 
+            const chatHistory = (await messageModel.find({
+                chat:messagePayload.chat
+            }).sort({createdAt:-1}).limit(4).lean()).reverse()
 
 
             const response = await generateResponse(chatHistory.map(item=>{
@@ -92,4 +94,6 @@ export  function initSocketServer(httpServer){
     Verifying the token to authenticate the user.
     Attaching the authenticated user to the socket object.
     Allowing only verified users to establish a socket connection
+
+    AI gives us in the form of token : agar message length lambi > number of token increase > cost increases
 */

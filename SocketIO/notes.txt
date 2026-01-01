@@ -1,0 +1,2 @@
+STANDALONE NAHI KARNA , http server ke saath setup karna hai
+ 

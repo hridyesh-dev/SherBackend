@@ -9,17 +9,22 @@ export  function initSocketServer(httpServer){
     //io = server 
     const io = new Server(httpServer,{})
 
-    //socket io ka middleware  
+    //socket io ka middleware 
+    // Jab tak user loggedIn nahi hia tabh 
+    // tak usse SocketIO se connect nahi karna chahiye
     io.use(async (socket,next)=>{
         //token set hai usse fetch karna hai 
         const cookies = cookie.parse(socket.handshake.headers?.cookie || "" )
+        //jaise connection banega socket.io ka cookie milegi 
         console.log(" Socket connection cookies : ",cookies);
         if(!cookies.token){
             next(new Error("Auth error : no token provided"))
         }
         try{
-            const decoded=jwt.verify(cookies.token,process.env.JWT_SECRET)    
+            //token ko verify karo 
+            const decoded = jwt.verify( cookies.token , process.env.JWT_SECRET )    
             //konse model ne connection request kari hai 
+            //user ki id ke bases pe usko find karege 
             const user= await userModel.findById(decoded.id)
             // JO BHI USER AAYE GA USSE SET KRR DO 
             socket.user = user ;
@@ -44,10 +49,12 @@ export  function initSocketServer(httpServer){
                 }
                 console.log("Message sent by user: ",messagePayload);
             */
+            console.log(messagePayload);
 
             //jo user ne message kiya usee save karo 
             // aur jo response aaya hai usse bhi save karo 
             //jo user ne message kiya tha usse save krr do 
+            // chat history mai user ka message save kiya 
             await messageModel.create({
                 chat:messagePayload.chat,
                 user:socket.user._id,
@@ -55,12 +62,22 @@ export  function initSocketServer(httpServer){
                 role:"user"
             })
 
+
             //kitne last messages yaad rakhne waale hai : IN SHORT TERM MEMORY 
+            //- Yeh MongoDB se saare messages fetch karta hai jo us chat ID (messagePayload.chat) ke andar hain.
+            //- chatHistory ek array of objects hota hai, jisme har object ek message document hota hai:
+            //  {
+            //      role: "user" or "model",
+            //      content: "actual message text",
+            //      ...
+            //   }
+            //yehi hai hamari short term memory 
+            //isko limit krr diya only sending 10 messages 
             const chatHistory = (await messageModel.find({
                 chat:messagePayload.chat
-            }).sort({createdAt:-1}).limit(4).lean()).reverse()
+            }).sort({createdAt:-1}).limit(10).lean()).reverse()
 
-
+            //ai ko pura context bheja hai 
             const response = await generateResponse(chatHistory.map(item=>{
                 return {
                     role:item.role,
@@ -70,13 +87,15 @@ export  function initSocketServer(httpServer){
         
             // Jo message model ne bheja hai usse bhi
             // Save krr do iss se chat history maintain ho jaaye gi 
+            // model ka answer save kiya 
             await messageModel.create({
                 chat:messagePayload.chat,
                 user:socket.user._id,
-                content:messagePayload.content,
+                content:response,
                 role:"model"
             })
 
+            //sending response to client 
             //event emitter: jo reponse aaye ga usse send krr diya wapas 
             socket.emit("ai-response",{
                 content:response,

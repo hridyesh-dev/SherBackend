@@ -66,7 +66,8 @@ io.on("connection", (socket) => {
         socket.emit("ai-message-response",{response})
     
         //also register karna hai lister postman pe (client)
-    
+        //142: Basics , 143: sockets , 144: Full Apply 
+        //150: Basics Auth , Chat , 
     })
 
 

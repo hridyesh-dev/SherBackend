@@ -9,4 +9,4 @@ export async function generateResponse(content){
         contents : content
     })
     return response.text
-}
+}  

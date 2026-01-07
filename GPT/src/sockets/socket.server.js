@@ -2,8 +2,9 @@ import { Server } from "socket.io";
 import cookie from "cookie"
 import jwt from "jsonwebtoken"
 import { userModel } from "../models/user.model.js";
-import { generateResponse } from "../services/ai.service.js";
+import { generateResponse, generateVector } from "../services/ai.service.js";
 import { messageModel } from "../models/message.model.js";
+import { createMemory, querryMemory } from "../services/vector.service.js";
 
 export  function initSocketServer(httpServer){
     //io = server 
@@ -49,18 +50,51 @@ export  function initSocketServer(httpServer){
                 }
                 console.log("Message sent by user: ",messagePayload);
             */
-            console.log(messagePayload);
-
+        
             //jo user ne message kiya usee save karo 
             // aur jo response aaya hai usse bhi save karo 
             //jo user ne message kiya tha usse save krr do 
             // chat history mai user ka message save kiya 
-            await messageModel.create({
+        
+            const message = await messageModel.create({
                 chat:messagePayload.chat,
                 user:socket.user._id,
                 content:messagePayload.content,
                 role:"user"
             })
+
+            //EMBEDDINGS : Hamare liye vector banaye gi
+            
+            //long term memory mai save karo 
+
+            //1) message ko vector mai save karo and send this question 
+            const vectors=await generateVector(messagePayload.content)
+            console.log(vectors);
+
+              //to check ki memory mai current question se related info hai kya 
+            const memory = await querryMemory({
+                queryVector:vectors,
+                limit : 3,
+                metadata:{}
+            })
+            //backend se related , framework se related , 
+            // server se related kon kon si baate ki thi unhe 
+            // dhoond ke laake de ga 
+            console.log(memory);
+
+            await createMemory({
+                vectors,
+                messageId:message._id,
+                metadata:{
+                    //chatID 
+                    chat:messagePayload.chat,
+                    //userID 
+                    user:socket.user._id,
+                    //message
+                    text:messagePayload.content
+                }
+            })
+
 
 
             //kitne last messages yaad rakhne waale hai : IN SHORT TERM MEMORY 
@@ -78,6 +112,7 @@ export  function initSocketServer(httpServer){
             }).sort({createdAt:-1}).limit(10).lean()).reverse()
 
             //ai ko pura context bheja hai 
+            // iss message ko ai mai feed karege we will combine shaort term memory and ltm 
             const response = await generateResponse(chatHistory.map(item=>{
                 return {
                     role:item.role,
@@ -88,11 +123,28 @@ export  function initSocketServer(httpServer){
             // Jo message model ne bheja hai usse bhi
             // Save krr do iss se chat history maintain ho jaaye gi 
             // model ka answer save kiya 
-            await messageModel.create({
+        
+            const responseMessage = await messageModel.create({
                 chat:messagePayload.chat,
                 user:socket.user._id,
                 content:response,
                 role:"model"
+            })
+
+            //response vector save krr rahe hai 
+            const responseVectors=await generateVector(response)
+            
+            await createMemory({
+                vectors:responseVectors,
+                messageId:responseMessage._id,
+                metadata:{
+                    //chatID 
+                    chat:messagePayload.chat,
+                    //userID 
+                    user:socket.user._id,
+                    //message: jo response bheja 
+                    text:response
+                }
             })
 
             //sending response to client 
